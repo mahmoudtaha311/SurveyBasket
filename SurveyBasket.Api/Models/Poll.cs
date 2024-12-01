@@ -1,4 +1,7 @@
-﻿namespace SurveyBasket.Api.Models;
+﻿using SurveyBasket.Api.Contracts.Requsets;
+using SurveyBasket.Api.Contracts.Resposes;
+
+namespace SurveyBasket.Api.Models;
 
 public class Poll
 {
@@ -7,4 +10,7 @@ public class Poll
     public string Title { get; set; }
 
     public string Description { get; set; }
+
+
+   
 }
