@@ -1,57 +1,94 @@
-﻿using MapsterMapper;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace SurveyBasket.Api.Controllers;
-
+[ApiVersion(1, Deprecated = true)]
+[ApiVersion(2)]
 [Route("api/[controller]")]
 [ApiController]
-public class PollsController(IpollService pollservice ) : ControllerBase
+public class PollsController(IPollService pollservice) : ControllerBase
 {
-    private readonly IpollService _pollservice = pollservice;
-  
-
+    private readonly IPollService _pollservice = pollservice;
     [HttpGet("GetAll")]
-    public IActionResult GetAll()
+    [HasPermission(Permissions.GetPolls)]
+    public async Task<IActionResult> GetAll(CancellationToken cancellation)
     {
-        var polls =  _pollservice.GetAll();
 
-        var response = polls.Adapt<IEnumerable<PollResponse>>();    
-        return Ok(response);
+        return Ok(await _pollservice.GetAllAsync(cancellation));
     }
-    [HttpGet("{id}")]
-    public IActionResult GetById([FromRoute]int id)
+    [MapToApiVersion(1)]
+    [HttpGet("current")]
+    [Authorize(Roles = DefaultRoles.Member.Name)]
+    [EnableRateLimiting(OptionsRateLimiting.UserLimitPolicy)]
+    public async Task<IActionResult> GetCurrentV1(CancellationToken cancellation)
     {
-        var poll = _pollservice.GetById(id);   
-        
 
-        return poll is null? NotFound() : Ok(poll.Adapt<PollResponse>()); 
+        return Ok(await _pollservice.GetCurrentAsyncV1(cancellation));
+    }
+    [MapToApiVersion(2)]
+    [HttpGet("current")]
+    [Authorize(Roles = DefaultRoles.Member.Name)]
+    [EnableRateLimiting(OptionsRateLimiting.UserLimitPolicy)]
+    public async Task<IActionResult> GetCurrentV2(CancellationToken cancellation)
+    {
 
-        
+        return Ok(await _pollservice.GetCurrentAsyncV2(cancellation));
+    }
+
+
+    [HttpGet("{id}")]
+    [HasPermission(Permissions.GetPolls)]
+    public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellation)
+    {
+        var result = await _pollservice.GetByIdAsync(id, cancellation);
+        var response = result.Value.Adapt<PollResponse>();
+
+        return result.IsSuccess ? Ok(response) : result.ToProblem();
+
+
     }
     [HttpPost("")]
-    public IActionResult Add([FromBody] CreatePollRequest request )
+    [HasPermission(Permissions.AddPolls)]
+
+    public async Task<IActionResult> Add([FromBody] PollRequest request, CancellationToken cancellation)
     {
-        
-        var newpoll = _pollservice.Add(request.Adapt<Poll>());
-        return CreatedAtAction(nameof(GetById), new { id = newpoll.Id }, newpoll);
-        
+
+        var result = await _pollservice.AddAsync(request, cancellation);
+        return result.IsSuccess ?
+            CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value) : result.ToProblem();
+
+
     }
     [HttpPut("{id}")]
-    public IActionResult Update([FromRoute] int id,[FromBody] CreatePollRequest request) 
+    [HasPermission(Permissions.UpdatePolls)]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PollRequest request, CancellationToken cancellation)
     {
-        var isUpdated = _pollservice.Update(id, request.Adapt<Poll>());
-        if (!isUpdated)
-        {
-            return NotFound();
-        }
-        return NoContent();
-       
-    }
-    [HttpDelete("{id}")]
-    public IActionResult Delete([FromRoute]int id) 
-    {
-        var isDeleted = _pollservice.Delete(id);
+        var result = await _pollservice.UpdateAsync(id, request, cancellation);
 
-        return isDeleted ? NoContent() : NotFound();
+
+        return result.IsSuccess ? NoContent() : result.ToProblem();
+
+
+    }
+
+    [HttpDelete("{id}")]
+    [HasPermission(Permissions.DeletePolls)]
+
+    public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellation)
+    {
+        var result = await _pollservice.DeleteAsync(id, cancellation);
+
+        return result.IsSuccess ? NoContent() : result.ToProblem();
+
+
+    }
+    [HttpPut("{id}/toggle-published")]
+    [HasPermission(Permissions.UpdatePolls)]
+    public async Task<IActionResult> TogglePublishStatus(int id, CancellationToken cancellation)
+    {
+        var result = await _pollservice.TogglePublishStatusAsync(id, cancellation);
+
+        return result.IsSuccess ? NoContent() : result.ToProblem();
+
     }
 }
