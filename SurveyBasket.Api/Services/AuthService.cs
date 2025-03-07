@@ -36,8 +36,8 @@ public class AuthService(UserManager<ApplicationUser> userManager,
             return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
 
 
-        //if(! user.EmailConfirmed)
-        //    return Result.Failure<AuthResponse>(UserErrors.EmailNotconfirmed);
+        if (!user.EmailConfirmed)
+            return Result.Failure<AuthResponse>(UserErrors.EmailNotConfirmed);
 
         var result = await _signInManager.PasswordSignInAsync(user, password, false, true);
 
@@ -163,7 +163,7 @@ public class AuthService(UserManager<ApplicationUser> userManager,
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             _logger.LogInformation("Confirmation code : {code}", code);
 
-            //BackgroundJob.Enqueue(() => SendConfirmationEmail(user, code))
+           
             await SendConfirmationEmail(user, code);
             return Result.Success();
         }
@@ -311,16 +311,7 @@ public class AuthService(UserManager<ApplicationUser> userManager,
     {
         var userRoles = await _userManager.GetRolesAsync(user);
 
-        //var userPermissions = await _context.Roles
-        //     .Join(_context.RoleClaims,
-        //          role => role.Id,
-        //          claim => claim.RoleId,
-        //          (role, claim) => new { role, claim }
-        //     )
-        //     .Where(x => userRoles.Contains(x.role.Name!))
-        //     .Select(x => x.claim.ClaimValue!)
-        //     .Distinct()
-        //     .ToListAsync(cancellation);
+       
         var userPermissions = await (from r in _context.Roles
                                      join p in _context.RoleClaims
                                      on r.Id equals p.RoleId

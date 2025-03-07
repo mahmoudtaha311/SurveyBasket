@@ -44,7 +44,7 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
         }
         ],
     DashboardTitle = "Survey Basket Dashboard",
-    //IsReadOnlyFunc = (DashboardContext context) => true
+   
 });
 
 var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
@@ -60,7 +60,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseExceptionHandler();
 app.UseRateLimiter();
 app.MapHealthChecks("health", new HealthCheckOptions

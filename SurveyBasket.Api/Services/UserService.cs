@@ -17,11 +17,7 @@ public class UserService(UserManager<ApplicationUser> userManager, IRoleService 
 
     public async Task<Result> UpdateProfileAsync(string userId, UpdateProfileRequest request)
     {
-        //var user = await _userManager.FindByIdAsync(userId);
-
-        //user = request.Adapt(user);
-
-        //await _userManager.UpdateAsync(user!);
+        
         await _userManager.Users
             .Where(x => x.Id == userId)
             .ExecuteUpdateAsync(setters =>
@@ -84,16 +80,6 @@ public class UserService(UserManager<ApplicationUser> userManager, IRoleService 
             return Result.Failure<UserResponse>(UserErrors.UserNotFound);
 
         var userRoles = await _userManager.GetRolesAsync(user!);
-
-        //var response = new UserResponse
-        //    (
-        //       user.Id!,
-        //       user.FirstName,
-        //       user.LastName,
-        //       user.Email!,
-        //       user.IsDisabled,
-        //       userRoles
-        //    );
 
         var response = (user, userRoles).Adapt<UserResponse>();
         return Result.Success(response);

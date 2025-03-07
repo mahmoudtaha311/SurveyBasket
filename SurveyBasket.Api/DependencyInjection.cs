@@ -31,7 +31,6 @@ public static class DependencyInjection
                                 .AllowAnyOrigin()
                                 .AllowAnyMethod()
                                 .AllowAnyHeader()
-                                //.WithOrigins("URL app")   دا لو عايز احدد مين مسموحله يبعت ريكوست لسيرفر
                                 )
                );
 
@@ -274,37 +273,7 @@ public static class DependencyInjection
                 options.PermitLimit = OptionsRateLimiting.ConcurrencyPermitLimit;
                 options.QueueLimit = OptionsRateLimiting.ConcurrencyQueueLimit;
                 options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            });
-
-
-            //rateLimiterOptions.AddTokenBucketLimiter("token", options =>
-            //{
-            //    options.TokenLimit = 2;
-            //    options.QueueLimit = 1;
-            //    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            //    options.ReplenishmentPeriod = TimeSpan.FromSeconds(30);
-            //    options.TokensPerPeriod = 2; 
-            //    options.AutoReplenishment = true;
-
-            //});
-
-            //rateLimiterOptions.AddFixedWindowLimiter("fixed", options =>
-            //{
-            //    options.PermitLimit = 2;
-            //    options.QueueLimit = 1;
-            //    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            //    options.Window = TimeSpan.FromSeconds(20);
-            //});
-
-
-            //rateLimiterOptions.AddSlidingWindowLimiter("sliding", options =>
-            //{
-            //    options.PermitLimit = 2;
-            //    options.QueueLimit = 1;
-            //    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            //    options.Window = TimeSpan.FromSeconds(20);
-            //    options.SegmentsPerWindow = 2; 
-            //});
+            });            
 
         });
 

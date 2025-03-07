@@ -142,14 +142,7 @@ public class QuestionService(ApplicationDbContext context, ICacheService cacheSe
 
     public async Task<Result<IEnumerable<QuestionResponse>>> GetAvailableAsync(int pollId, string userId, CancellationToken cancellationToken = default)
     {
-        //var hasVote = await _context.Votes.AnyAsync(x => x.PollId == pollId && x.UserId == userId, cancellationToken);
-        //if (hasVote)
-        //    return Result.Failure<IEnumerable<QuestionResponse>>(voteErrors.DuplicatedVote);
-
-        //var pollIsExists = await _context.polls.AnyAsync(x => x.Id == pollId && x.IsPublished && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow) && x.EndsAt >= DateOnly.FromDateTime(DateTime.UtcNow),cancellationToken);
-
-        //if (!pollIsExists)
-        //    return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.pollNotFound);
+        
 
         var cashKey = $"{_cachePrefix}-{pollId}";
 
@@ -178,28 +171,6 @@ public class QuestionService(ApplicationDbContext context, ICacheService cacheSe
             _logger.LogInformation("get question from cache");
             Questions = cacheQuestions;
         }
-
-        //var Questions = await _memoryCache.GetOrCreateAsync(
-        //    cashKey,
-        //    cacheEntery =>
-        //    {
-        //        cacheEntery.SlidingExpiration = TimeSpan.FromMinutes(5);
-        //        return _context.Question
-        //                              .Where(x => x.PollId == pollId && x.IsActive)
-
-        //                              .Include(x => x.Answers)
-        //                              .Select(q => new QuestionResponse
-        //                              (
-        //                                  q.QuestionId,
-        //                                  q.Content,
-        //                                  q.Answers.Where(a => a.IsActive).Select(a => new AnswerResponse(a.AnswerId, a.Content))
-        //                                  ))
-        //                              .AsNoTracking()
-        //                              .ToListAsync(cancellationToken);
-        //    }
-
-        //    );
-
 
 
 
